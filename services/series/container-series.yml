@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: series
+  labels:
+    app: series
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: series
+  template:
+    metadata:
+      labels:
+        app: series
+    spec:
+      containers:
+      - image: ghcr.io/edgarvaguencia/tvlog/series:latest
+        imagePullPolicy: Always
+        name: series
+        command: [ "/bin/bash", "-c", "/opt/scripts/makemigrations.sh && /opt/scripts/migrate.sh && /opt/scripts/collectstatic.sh && /opt/scripts/gunicorn.sh" ]
+        env:
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        - name: POSTGRES_NAME
+          value: tvlog
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: series
+spec:
+  type: ClusterIP
+  ports:
+  - name: series
+    port: 8000
+  selector:
+    app: series

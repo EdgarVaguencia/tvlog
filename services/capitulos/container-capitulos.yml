@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: capitulos
+  labels:
+    app: capitulos
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: capitulos
+  template:
+    metadata:
+      labels:
+        app: capitulos
+    spec:
+      containers:
+      - image: ghcr.io/edgarvaguencia/tvlog/capitulos:latest
+        imagePullPolicy: Always
+        name: capitulos
+        command: [ "/bin/bash", "-c", "/opt/scripts/makemigrations.sh && /opt/scripts/migrate.sh && /opt/scripts/collectstatic.sh && /opt/scripts/gunicorn.sh" ]
+        env:
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        - name: POSTGRES_NAME
+          value: tvlog
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: capitulos
+spec:
+  type: ClusterIP
+  ports:
+  - name: capitulos
+    port: 8000
+  selector:
+    app: capitulos

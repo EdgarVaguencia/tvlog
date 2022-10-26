@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporadas
+  labels:
+    app: temporadas
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: temporadas
+  template:
+    metadata:
+      labels:
+        app: temporadas
+    spec:
+      containers:
+      - image: ghcr.io/edgarvaguencia/tvlog/temporadas:latest
+        imagePullPolicy: Always
+        name: temporadas
+        command: [ "/bin/bash", "-c", "/opt/scripts/makemigrations.sh && /opt/scripts/migrate.sh && /opt/scripts/collectstatic.sh && /opt/scripts/gunicorn.sh" ]
+        env:
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        - name: POSTGRES_NAME
+          value: tvlog
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporadas
+spec:
+  type: ClusterIP
+  ports:
+  - name: temporadas
+    port: 8000
+  selector:
+    app: temporadas

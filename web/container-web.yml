@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weblog
+  labels:
+    app: weblog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: weblog
+  template:
+    metadata:
+      labels:
+        app: weblog
+    spec:
+      containers:
+      - image: ghcr.io/edgarvaguencia/tvlog/weblog:latest
+        imagePullPolicy: Always
+        name: weblog
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: weblog
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 80
+  selector:
+    app: weblog

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dblog
+  labels:
+    app: dblog
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dblog
+  template:
+    metadata:
+      labels:
+        app: dblog
+    spec:
+      containers:
+      - image: ghcr.io/edgarvaguencia/tvlog/dblog:latest
+        imagePullPolicy: Always
+        name: dblog
+        env:
+        - name: POSTGRES_USER
+          value: postgres
+        - name: POSTGRES_PASSWORD
+          value: postgres
+        - name: POSTGRES_DB
+          value: tvlog
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: dblog
+spec:
+  type: ClusterIP
+  ports:
+  - name: dblog
+    port: 5432
+  selector:
+    app: dblog
