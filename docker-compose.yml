@@ -1,0 +1,75 @@
+version: "3.9"
+services:
+  dblog:
+    image: ghcr.io/edgarvaguencia/tvlog/dblog
+    build: ./dataBase/
+    container_name: dblog
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=tvlog
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER}'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+  series:
+    image: ghcr.io/edgarvaguencia/tvlog/series
+    build: ./services/series
+    container_name: 'series'
+    command: bash -c "/opt/scripts/makemigrations.sh && /opt/scripts/migrate.sh && /opt/scripts/collectstatic.sh && /opt/scripts/gunicorn.sh"
+    volumes:
+      - ./services/series:/home/series/
+      - ./services/series/scripts:/opt/scripts/
+    environment:
+      - POSTGRES_NAME=tvlog
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      dblog:
+        condition: service_healthy
+  temporadas:
+    image: ghcr.io/edgarvaguencia/tvlog/temporadas
+    build: ./services/temporadas
+    container_name: temporadas
+    command: bash -c "/opt/scripts/makemigrations.sh && /opt/scripts/migrate.sh && /opt/scripts/collectstatic.sh && /opt/scripts/gunicorn.sh"
+    volumes:
+      - ./services/temporadas:/home/temporadas/
+      - ./services/temporadas/scripts:/opt/scripts/
+    environment:
+      - POSTGRES_NAME=tvlog
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      dblog:
+        condition: service_healthy
+  capitulos:
+    image: ghcr.io/edgarvaguencia/tvlog/capitulos
+    build: ./services/capitulos
+    container_name: capitulos
+    command: bash -c "/opt/scripts/makemigrations.sh && /opt/scripts/migrate.sh && /opt/scripts/collectstatic.sh && /opt/scripts/gunicorn.sh"
+    volumes:
+      - ./services/capitulos:/home/capitulos/
+      - ./services/capitulos/scripts:/opt/scripts/
+    environment:
+      - POSTGRES_NAME=tvlog
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      dblog:
+        condition: service_healthy
+  weblog:
+    image: ghcr.io/edgarvaguencia/tvlog/weblog
+    build: ./web
+    container_name: weblog
+    ports:
+      - 80:80
+    depends_on:
+      - series
+      - temporadas
+      - capitulos
