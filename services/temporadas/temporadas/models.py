@@ -1,6 +1,7 @@
 from django.db import models
 
 class serie(models.Model):
+    id_origen = models.IntegerField(blank=True, null=True)
     nombre = models.CharField(max_length=100)
 
     def __str__(self):
@@ -13,6 +14,7 @@ class temporada(models.Model):
     fecha_modificado = models.DateTimeField(auto_now=True)
     eliminado = models.BooleanField(default=False)
     fecha_eliminado = models.DateTimeField(blank=True, null=True)
+    num_capitulos = models.IntegerField(default=0)
 
     def __str__(self):
         return u'{} - {}'.format(self.serie, self.nombre)

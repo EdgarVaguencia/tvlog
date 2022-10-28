@@ -13,7 +13,7 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     healthcheck:
-      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER}'"]
+      test: ["CMD-SHELL", "sh -c 'pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}'"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -37,7 +37,7 @@ services:
     image: ghcr.io/edgarvaguencia/tvlog/temporadas
     build: ./services/temporadas
     container_name: temporadas
-    command: bash -c "/opt/scripts/makemigrations.sh && /opt/scripts/migrate.sh && /opt/scripts/collectstatic.sh && /opt/scripts/gunicorn.sh"
+    command: bash -c "/opt/scripts/makemigrations.sh && /opt/scripts/migrate.sh && /opt/scripts/collectstatic.sh && (/opt/scripts/gunicorn.sh & python manage.py consumer)"
     volumes:
       - ./services/temporadas:/home/temporadas/
       - ./services/temporadas/scripts:/opt/scripts/
@@ -52,7 +52,7 @@ services:
     image: ghcr.io/edgarvaguencia/tvlog/capitulos
     build: ./services/capitulos
     container_name: capitulos
-    command: bash -c "/opt/scripts/makemigrations.sh && /opt/scripts/migrate.sh && /opt/scripts/collectstatic.sh && /opt/scripts/gunicorn.sh"
+    command: bash -c "/opt/scripts/makemigrations.sh && /opt/scripts/migrate.sh && /opt/scripts/collectstatic.sh && (/opt/scripts/gunicorn.sh & python rabbit.py)"
     volumes:
       - ./services/capitulos:/home/capitulos/
       - ./services/capitulos/scripts:/opt/scripts/
@@ -73,3 +73,7 @@ services:
       - series
       - temporadas
       - capitulos
+  rabbitmq:
+    image: ghcr.io/edgarvaguencia/tvlog/rabbitmq
+    build: ./rabbitMQ
+    container_name: rabbitmq

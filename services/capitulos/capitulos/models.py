@@ -2,6 +2,11 @@ from django.db import models
 
 class temporada(models.Model):
     nombre = models.CharField(max_length=100)
+    serie_id = models.IntegerField(blank=False, null=False, default=0)
+    serie = models.CharField(max_length=100, default='')
+
+    def __str__(self):
+        return u'{} - {}'.format(self.temporada, self.serie)
 
 class capitulo(models.Model):
     nombre = models.CharField(max_length=100)

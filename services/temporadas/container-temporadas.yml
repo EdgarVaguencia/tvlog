@@ -18,7 +18,7 @@ spec:
       - image: ghcr.io/edgarvaguencia/tvlog/temporadas:latest
         imagePullPolicy: Always
         name: temporadas
-        command: [ "/bin/bash", "-c", "/opt/scripts/makemigrations.sh && /opt/scripts/migrate.sh && /opt/scripts/collectstatic.sh && /opt/scripts/gunicorn.sh" ]
+        command: [ "/bin/bash", "-c", "/opt/scripts/makemigrations.sh && /opt/scripts/migrate.sh && /opt/scripts/collectstatic.sh && (/opt/scripts/gunicorn.sh & python manage.py consumer)" ]
         env:
         - name: POSTGRES_USER
           value: postgres

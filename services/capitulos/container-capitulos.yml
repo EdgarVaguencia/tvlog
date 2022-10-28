@@ -18,7 +18,7 @@ spec:
       - image: ghcr.io/edgarvaguencia/tvlog/capitulos:latest
         imagePullPolicy: Always
         name: capitulos
-        command: [ "/bin/bash", "-c", "/opt/scripts/makemigrations.sh && /opt/scripts/migrate.sh && /opt/scripts/collectstatic.sh && /opt/scripts/gunicorn.sh" ]
+        command: [ "/bin/bash", "-c", "/opt/scripts/makemigrations.sh && /opt/scripts/migrate.sh && /opt/scripts/collectstatic.sh && (/opt/scripts/gunicorn.sh & python rabbit.py)" ]
         env:
         - name: POSTGRES_USER
           value: postgres
